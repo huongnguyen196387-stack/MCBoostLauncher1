@@ -1,0 +1,14 @@
+Project: MCBoostLauncher1
+App version: 1.2.0
+Version code: 12
+Minecraft target: 26.0.x
+Minecraft package: com.mojang.minecraftpe
+Compile SDK: 35
+Target SDK: 35
+Min SDK: 26
+AGP: 8.6.1
+Java: 17
+
+CI:
+- .github/workflows/android-ci.yml
+- .github/workflows/release.yml

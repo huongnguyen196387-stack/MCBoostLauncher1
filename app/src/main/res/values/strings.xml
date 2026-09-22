@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">MCBoost Launcher</string>
+    <string name="accessibility_description">MCBoost Launcher uses accessibility only for optional display magnification and interaction metrics.</string>
+</resources>
