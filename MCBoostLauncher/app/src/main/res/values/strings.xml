@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">MCBoost Launcher</string>
+    <string name="accessibility_description">MCBoost Zoom control for Minecraft. This service uses Android display magnification when you press Zoom in the launcher.</string>
+</resources>
