@@ -1,51 +1,21 @@
-# Engine Module Boundary
+# True Bedrock engine module roadmap
 
-MCBoost Launcher is intentionally split into a companion shell and an optional engine-side integration.
+The requested features **Render Culling, Entity Culling, Particle Culling, Occlusion Culling and a true FPS Uncap** must execute in the Minecraft process / render pipeline. Android's app sandbox does not provide a normal companion launcher with a supported API to rewrite another app's renderer.
 
-## Companion shell responsibilities
+A production implementation therefore needs two layers:
 
-- Verify the official Minecraft package.
-- Enforce the supported `26.0.x` version gate.
-- Persist user profiles and preferences.
-- Manage overlay, notification, Accessibility and battery/display shortcuts.
-- Show transparent status/capability information.
+1. **MCBoost Launcher (this project)**
+   - verifies official Minecraft package and requested 26.0.x version
+   - stores the selected performance profile
+   - starts the official Minecraft package
+   - hosts HUD, Accessibility zoom, thermal monitor and system settings
 
-## Engine module responsibilities
+2. **MCBoost Bedrock Engine Module (next layer)**
+   - in-process rendering hooks / supported modding API
+   - real frustum + occlusion culling
+   - entity/particle batching and distance culling
+   - frame-pacing and actual FPS telemetry
+   - frame-cap override / uncapped mode
+   - optional dynamic resolution
 
-Only an engine-side component can truthfully implement controls such as:
-
-- Render Culling
-- Entity Culling
-- Particle Culling
-- Occlusion Culling
-- True in-game FPS/frame timing
-- True FPS cap / uncap
-- Render-distance and renderer-specific controls
-
-The launcher UI therefore marks these controls as `Requires engine module` instead of pretending to modify Minecraft.
-
-## Suggested bridge contract
-
-A future module may expose a small JSON capability document and a metrics endpoint with fields such as:
-
-```json
-{
-  "engineVersion": "1.0",
-  "minecraftVersion": "26.0.x",
-  "renderCulling": true,
-  "entityCulling": true,
-  "particleCulling": true,
-  "occlusionCulling": true,
-  "trueFps": true,
-  "uncapFps": true,
-  "renderDistanceControl": true,
-  "fps": 120.5,
-  "frameTimeMs": 8.30
-}
-```
-
-The JSON above is a contract example, not a claim that the current launcher can access those engine values.
-
-## Compatibility rule
-
-Do not silently accept an engine module built for another Minecraft version. The module should report its exact compatible range, and the launcher should show `INCOMPATIBLE` when it does not match the installed official build.
+The launcher intentionally does **not** claim to do layer 2 by itself and does not produce fake FPS numbers.

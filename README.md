@@ -1,95 +1,60 @@
-# MCBoost Launcher 1.2.0
+# MCBoost Launcher 1.1.2
 
-A real Android companion launcher for the official Minecraft Bedrock package `com.mojang.minecraftpe`.
+Android companion launcher for **official Minecraft Bedrock**.
 
-## Supported target
+## Minecraft 26.0 detection
 
-- Official Minecraft Bedrock: `26.0.x`
-- Android min SDK: 26
-- Compile/target SDK: 35
-- Android Gradle Plugin: 8.6.1
-- Java: 17
+The launcher accepts the Bedrock 26.0 release family when Android reports either of these common version-name formats:
 
-The launcher refuses to start an unsupported Minecraft version.
+- `26.0`, `26.0.x`
+- `1.26.0`, `1.26.0.x` (for example `1.26.0.2`)
 
-## What is implemented
+The app launches only the installed official package `com.mojang.minecraftpe`.
 
-### Launcher-side
+## Implemented directly
 
-- Official package/version check.
-- Normal Android launch.
-- Persistent Balanced / Low latency / Battery saver companion profiles.
+- Official Minecraft package/version check.
+- Normal launch of the installed Minecraft app.
+- Performance profiles: Balanced / Low latency / Battery saver.
 - Thermal Guard using Android thermal APIs.
-- Minimal HUD mode.
-- Floating HUD with `FPS≈`, CPS and thermal status.
-- Display refresh-rate reporting.
-- Accessibility-based system zoom (1×–6×).
-- Battery optimization and Display settings shortcuts.
-- Clear capability separation between shell and engine-side features.
+- Battery optimization exception flow.
+- Lightweight foreground floating HUD using `SYSTEM_ALERT_WINDOW`.
+- Device display refresh-rate reporting in the HUD (display Hz, not Minecraft FPS).
+- Accessibility Magnification service for system-level Zoom.
+- Settings shortcuts for required permissions.
 
-### Engine-side boundary
+## Performance / engine-side features
 
-Render Culling, Entity Culling, Particle Culling, Occlusion Culling, true in-game FPS, true Uncap FPS and renderer-specific controls are marked as **Requires engine module**. A normal third-party launcher cannot truthfully toggle Minecraft's internal renderer or frame cap just by launching another app.
+The UI separates Android-side optimization from Bedrock engine features that require an in-process module:
 
-The HUD uses `FPS≈` intentionally: it measures the companion overlay's own display cadence, not Minecraft's internal renderer. CPS depends on Android accessibility click events and may be unavailable for a custom-rendered game surface. No fake Minecraft FPS values are generated.
+- Render Culling
+- Entity Culling
+- Particle Culling
+- Occlusion Culling
+- Chunk / world render optimization
+- True FPS telemetry and 1% low FPS
+- True Uncap FPS / frame-cap override
+- Dynamic resolution
 
-See [CAPABILITIES.md](docs/CAPABILITIES.md) and [ENGINE_MODULE.md](ENGINE_MODULE.md).
+A normal third-party launcher process does not have a supported Android API for rewriting another app's renderer or internal frame cap. Therefore this project does **not** claim that these engine features are active merely because a switch exists. No fake FPS values are generated.
 
-## Build locally
+## Build
 
-### Android Studio
+Android Gradle Plugin: 8.6.1  
+compileSdk: 35  
+targetSdk: 35  
+minSdk: 26
 
-Open the project root in Android Studio and build `app` with a JDK 17 toolchain.
-
-### Command line / Termux
-
-Install a JDK 17 and Gradle, then from the project root run:
-
-```bash
-gradle assembleDebug
-```
-
-APK output:
-
-```text
-app/build/outputs/apk/debug/app-debug.apk
-```
-
-If your environment has an Android SDK installation, make sure `ANDROID_HOME` / `ANDROID_SDK_ROOT` and the required SDK 35 platform/build-tools are configured.
+Open in Android Studio, or build with Gradle after installing the Android SDK.
 
 ## GitHub Actions
 
-`.github/workflows/android-ci.yml` builds the debug APK on pushes to `main`, pull requests, and manual runs. The APK is available from the workflow's **Artifacts** section.
+The repository includes a workflow under `.github/workflows/android.yml` that builds a debug APK on push and stores it as a workflow artifact.
 
-`.github/workflows/release.yml` builds the installable debug APK and creates a GitHub Release whenever you push a tag matching `v*`.
 
-Example:
+## Version 1.1.3
 
-```bash
-git add .
-git commit -m "MCBoost Launcher 1.2.0"
-git push origin main
+Fixes the supported-version check and updates the visible launcher build to 1.1.3.
+The official Minecraft Android package `com.mojang.minecraftpe` is accepted when its version name is `26.0`, `26.0.x`, `1.26.0`, or `1.26.0.x` (for example `1.26.0.2`).
 
-git tag v1.2.0
-git push origin v1.2.0
-```
-
-GitHub will then build and attach:
-
-```text
-MCBoostLauncher-v1.2.0.apk
-```
-
-to the Release page.
-
-### About signing
-
-The automated release intentionally uses the debug signing path so the workflow can publish a directly installable APK without storing a private keystore in the repository. For a production-signed APK, configure a private keystore through GitHub Actions secrets and change the release build to use that signing configuration.
-
-## Permissions
-
-The optional HUD uses `SYSTEM_ALERT_WINDOW` and a foreground service. Zoom uses an AccessibilityService and must be enabled manually in Android Settings. Android 13+ may also request notification permission for the foreground-service notification.
-
-## License
-
-This generated project contains only the launcher source and does not include or modify Minecraft code/assets.
+Note: this companion launcher does not claim to modify Minecraft's internal renderer or frame limiter. Engine-side culling and true in-game uncapped FPS require integration inside the game/render pipeline.
